@@ -1,0 +1,1 @@
+web: gunicorn Dialogflow_API:app
