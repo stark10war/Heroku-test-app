@@ -1,17 +1,66 @@
 import pandas as pd
 import numpy as np
 import os
+import json
 from flask import Flask, request, make_response, jsonify
+import paho.mqtt.client as mqtt
 
+
+broker_address= "soldier.cloudmqtt.com"
+port = 10671
+user = "rjzblyan"
+password = "YLW-IRQ_Vqlr"
+client = mqtt.Client('dialogflow_webhook')
+client.username_pw_set(user, password=password)
 
 # flask app for webhook
 app = Flask(__name__)
 log = app.logger
 
 
+
+def handle_device_on(req, response_content):
+    room = req.get('queryResult').get('parameters').get('room')
+    device = req.get('queryResult').get('parameters').get('device')
+    lights = req.get('queryResult').get('parameters').get('lights')
+    topic = 'home/'+room+'/'+device
+    client.connect(broker_address, port=port)
+    client.publish(topic, "on")
+    response_msg = "Turned on {} in {} : message broadcasted on topic {}".format(device, room, topic)
+    response_content['fulfillmentText']  =  response_msg
+    return response_content
+
+
 @app.route('/', methods=['GET'])
-def webhook():
-    return '''<h>The Heroku App is up and running <h\>'''
+def test():
+    return '''<h>
+                Welcome MR. Stark10war            
+                \n The Heroku App is up and running 
+                \n Just one function for handeling request is defined<h\>'''
+
+
+
+
+@app.route('/iot', methods=['POST'])
+def process_request():
+    response_content = {'fulfillmentText': ''}
+    req = request.get_json(silent = True, force =  True)
+    intent_name = req.get('queryResult').get('intent').get('displayName')
+    intent_funcs = {'smarthome.device.switch.on': handle_device_on }
+    try:
+        handle_request = intent_funcs[intent_name]
+        response_content = handle_request(req, response_content)
+        res = json.dumps(response_content, indent = 4)
+        return make_response(res)
+    except:
+        response_msg = "No handling function found for this request."
+        response_content['fulfillmentText']  =  response_msg
+        res = json.dumps(response_content, indent = 4)
+        return make_response(res)
+
+#    with open('request.json', 'r') as f:
+ #       req = json.load(f)
+        
 
 
 
