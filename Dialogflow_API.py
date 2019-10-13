@@ -18,7 +18,7 @@ app = Flask(__name__)
 log = app.logger
 
 
-device_db = pd.read_excel(r'device_database.xlsx')
+device_db = pd.read_excel('device_database.xlsx')
 
 
 def handle_device_on(req, response_content):
@@ -72,7 +72,7 @@ def process_request():
         res = json.dumps(response_content, indent = 4)
         return make_response(res)
     except:
-        response_msg = "No Such device founds."
+        response_msg = "No Such device found."
         response_content['fulfillmentText']  =  response_msg
         res = json.dumps(response_content, indent = 4)
         return make_response(res)
