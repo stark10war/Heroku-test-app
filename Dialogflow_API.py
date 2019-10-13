@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+os.chdir(r'C:\Users\Stark\Documents\Heroku_dialogflow_api')
 import json
 from flask import Flask, request, make_response, jsonify
 import paho.mqtt.client as mqtt
@@ -18,15 +19,18 @@ app = Flask(__name__)
 log = app.logger
 
 
+device_db = pd.read_excel(r'device_database.xlsx')
+
 
 def handle_device_on(req, response_content):
-    room = req.get('queryResult').get('parameters').get('room')
+    location = req.get('queryResult').get('parameters').get('room')
     device = req.get('queryResult').get('parameters').get('device')
     lights = req.get('queryResult').get('parameters').get('lights')
-    topic = 'home/'+room+'/'+device
+    pin = device_db.loc[(device_db.Location == location)&(device_db.DeviceName == device),'Pin'].values[0] 
+    topic = 'home/'+location+'/'+pin
     client.connect(broker_address, port=port)
     client.publish(topic, "on")
-    response_msg = "Turned on {} in {} : message broadcasted on topic {}".format(device, room, topic)
+    response_msg = "Turned on {} in {} : message broadcasted on topic {}".format(device, location, topic)
     response_content['fulfillmentText']  =  response_msg
     return response_content
 
@@ -34,15 +38,18 @@ def handle_device_on(req, response_content):
 
 
 def handle_device_off(req, response_content):
-    room = req.get('queryResult').get('parameters').get('room')
+    location = req.get('queryResult').get('parameters').get('room')
     device = req.get('queryResult').get('parameters').get('device')
     lights = req.get('queryResult').get('parameters').get('lights')
-    topic = 'home/'+room+'/'+device
+    pin = device_db.loc[(device_db.Location == location)&(device_db.DeviceName == device),'Pin'].values[0] 
+    topic = 'home/'+location+'/'+pin
     client.connect(broker_address, port=port)
     client.publish(topic, "off")
-    response_msg = "Turned off {} in {} : message broadcasted on topic {}".format(device, room, topic)
+    response_msg = "Turned off {} in {} : message broadcasted on topic {}".format(device, location, topic)
     response_content['fulfillmentText']  =  response_msg
     return response_content
+
+
 
 @app.route('/', methods=['GET'])
 def test():
@@ -66,13 +73,13 @@ def process_request():
         res = json.dumps(response_content, indent = 4)
         return make_response(res)
     except:
-        response_msg = "No handling function found for this request."
+        response_msg = "No Such device founds."
         response_content['fulfillmentText']  =  response_msg
         res = json.dumps(response_content, indent = 4)
         return make_response(res)
 
-#    with open('request.json', 'r') as f:
- #       req = json.load(f)
+    with open('request.json', 'r') as f:
+        req = json.load(f)
         
 
 
