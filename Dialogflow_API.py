@@ -18,7 +18,7 @@ app = Flask(__name__)
 log = app.logger
 
 
-device_db = pd.read_excel('device_database.xlsx')
+device_db = pd.read_pickle('device_db.pkl')
 
 
 def handle_device_on(req, response_content):
