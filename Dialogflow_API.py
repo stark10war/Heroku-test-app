@@ -31,6 +31,19 @@ def handle_device_on(req, response_content):
     return response_content
 
 
+
+
+def handle_device_off(req, response_content):
+    room = req.get('queryResult').get('parameters').get('room')
+    device = req.get('queryResult').get('parameters').get('device')
+    lights = req.get('queryResult').get('parameters').get('lights')
+    topic = 'home/'+room+'/'+device
+    client.connect(broker_address, port=port)
+    client.publish(topic, "off")
+    response_msg = "Turned on {} in {} : message broadcasted on topic {}".format(device, room, topic)
+    response_content['fulfillmentText']  =  response_msg
+    return response_content
+
 @app.route('/', methods=['GET'])
 def test():
     return '''<h>
@@ -46,7 +59,7 @@ def process_request():
     response_content = {'fulfillmentText': ''}
     req = request.get_json(silent = True, force =  True)
     intent_name = req.get('queryResult').get('intent').get('displayName')
-    intent_funcs = {'smarthome.device.switch.on': handle_device_on }
+    intent_funcs = {'smarthome.device.switch.on': handle_device_on, 'smarthome.device.switch.off': handle_device_off }
     try:
         handle_request = intent_funcs[intent_name]
         response_content = handle_request(req, response_content)
