@@ -40,7 +40,7 @@ def handle_device_off(req, response_content):
     topic = 'home/'+room+'/'+device
     client.connect(broker_address, port=port)
     client.publish(topic, "off")
-    response_msg = "Turned on {} in {} : message broadcasted on topic {}".format(device, room, topic)
+    response_msg = "Turned off {} in {} : message broadcasted on topic {}".format(device, room, topic)
     response_content['fulfillmentText']  =  response_msg
     return response_content
 
