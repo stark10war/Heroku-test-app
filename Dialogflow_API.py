@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-os.chdir(r'C:\Users\Stark\Documents\Heroku_dialogflow_api')
 import json
 from flask import Flask, request, make_response, jsonify
 import paho.mqtt.client as mqtt
