@@ -7,9 +7,9 @@ import paho.mqtt.client as mqtt
 
 
 broker_address= "soldier.cloudmqtt.com"
-port = 10671
-user = "rjzblyan"
-password = "YLW-IRQ_Vqlr"
+port = 
+user = ""
+password = ""
 client = mqtt.Client('dialogflow_webhook')
 client.username_pw_set(user, password=password)
 
